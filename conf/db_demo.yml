@@ -1,0 +1,40 @@
+MongoDB_Collections:
+  news:
+      link: "123"#链接信息
+      type: #信息类型
+        - Recruitment #招聘信息
+        - Recruitment Result #招聘结果
+      collect and extract: #采集信息
+        title: #标题
+          - is_extract: true
+          - collect: true
+          - extract: true
+        content: #内容
+          - is_extract: true
+          - collect: true
+          - extract: true
+        property: #性质（信息的定位）
+          - is_extract: true
+          - collect: true
+          - extract: true
+        collect time: #采集时间
+          - is_extract: true
+          - collect: true
+          - extract: true
+        release time: #发布时间
+          - is_extract: true
+          - collect: true
+          - extract: true
+        other: #其他
+          - is_extract: true
+          - collect: true
+          - extract: true
+      translate: "123" #转化信息
+      source: "123" #信息来源
+      plugin object: "123" #采集插件
+      feedback round: #使用反馈
+        read_confirm: "123" #是否阅读
+        valuable_confirm: "123" #是否有价值
+        classify: "123" #消息分类；复选框；
+        interesting: "123" #有趣的信息；富文本类型；信息使用分号";"隔开
+        uninteresting: "123" #无趣的信息；富文本类型；信息使用分号";"隔开
