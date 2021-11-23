@@ -7,11 +7,11 @@ import jinja2
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from app.objects.c_plugin import Plugin
-from app.service.interfaces.i_event_svc import EventServiceInterface
+from app.service.interfaces.i_app_svc import ApplicationServiceInterface
 from app.utility.base_service import BaseService
 
 
-class ApplicationService(EventServiceInterface, BaseService, ABC):
+class ApplicationService(ApplicationServiceInterface, BaseService, ABC):
     def __init__(self):
         # 事件需要有触发条件，发生时间，结果处理，事件关闭
         self.log = self.add_service('app_svc', self)

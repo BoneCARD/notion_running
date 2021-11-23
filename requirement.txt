@@ -5,3 +5,5 @@ marshmallow
 aiohttp
 aiohttp_jinja2
 aiohttp_apispec
+pymongo
+bson
