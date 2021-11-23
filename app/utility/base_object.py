@@ -8,7 +8,7 @@ class BaseObject(BaseWorld):
     load_schema = None
 
     def __init__(self):
-        self._access = self.Access.APP
+        # self._access = self.Access.APP
         self._created = self.get_current_timestamp()
 
     def match(self, criteria):
@@ -58,10 +58,6 @@ class BaseObject(BaseWorld):
         return d
 
     @property
-    def access(self):
-        return self._access
-
-    @property
     def created(self):
         return self._created
 
@@ -74,10 +70,6 @@ class BaseObject(BaseWorld):
         else:
             raise NotImplementedError
         return self.clean(dumped)
-
-    @access.setter
-    def access(self, value):
-        self._access = value
 
     @created.setter
     def created(self, value):

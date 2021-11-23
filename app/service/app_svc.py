@@ -43,10 +43,10 @@ class ApplicationService(ApplicationServiceInterface, BaseService, ABC):
         async def load(p):
             plugin = Plugin(name=p)
             if plugin.load_plugin():
-                await self.get_service('data_svc').store(plugin)
+                # await self.get_service('data_svc').store(plugin)
                 self._loaded_plugins.append(plugin)
 
-            if plugin.name in self.get_config('plugins'):
+            if plugin.name in plugins:
                 await plugin.enable(self.get_services())
                 self.log.info('Enabled plugin: %s' % plugin.name)
 
@@ -55,10 +55,6 @@ class ApplicationService(ApplicationServiceInterface, BaseService, ABC):
                 self.log.error('Problem locating the "%s" plugin. Ensure code base was cloned recursively.' % plug)
                 exit(0)
             asyncio.get_event_loop().create_task(load(plug))
-
-        templates = ['plugins/%s/templates' % p.lower() for p in self.get_config('plugins')]
-        templates.append('templates')
-        aiohttp_jinja2.setup(self.application, loader=jinja2.FileSystemLoader(templates))
 
 
 if __name__ == '__main__':

@@ -1,5 +1,4 @@
 import argparse
-import asyncio
 import logging
 
 from app.service.data_svc import DataService
@@ -22,10 +21,8 @@ def setup_logger(level=logging.DEBUG):
 
 def run_tasks(services):
     loop = app_svc.get_loop()
-    loop.create_task()
     plugins = BaseWorld.strip_yml(plugins_config_path)[0]["plugins"]
     loop.run_until_complete(app_svc.load_plugins(plugins))
-    loop.run_until_complete(app_svc.load_data(loop.run_until_complete(data_svc.locate('plugins', dict(enabled=True)))))
 
     try:
         logging.info('All systems ready.')
@@ -35,19 +32,21 @@ def run_tasks(services):
 
 
 if __name__ == '__main__':
-    # Receive command line arguments
+    # 接收命令行输入的参数
     parser = argparse.ArgumentParser('Welcome to the system')
-    parser.add_argument('-E', '--environment', required=False, default='default', help='Select an env. file to use')
+    parser.add_argument('-E', '--environment', required=False, default='local', help='Select an env. file to use')
     parser.add_argument("-l", "--log", dest="logLevel", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
                         help="Set the logging level", default='INFO')
     args = parser.parse_args()
 
     setup_logger(getattr(logging, args.logLevel))
 
+    # 设置配置文件路径
     main_config_path = 'conf/%s.yml' % args.environment
     plugins_config_path = 'conf/plugins.yml'
     BaseWorld.apply_config('main', BaseWorld.strip_yml(main_config_path)[0])
-    #
+
+    # 启动公共服务
     data_svc = DataService()
     app_svc = ApplicationService()
     notionapi_svc = NotionAPIService()

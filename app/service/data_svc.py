@@ -10,10 +10,10 @@ from app.service.interfaces.i_data_svc import DataServiceInterface
 
 
 class DataService(DataServiceInterface, BaseService, ABC):
+    """
+    数据服务
+    """
     def __init__(self):
-        """
-        数据服务
-        """
         self.log = self.add_service('data_svc', self)
         mongo_conf = BaseWorld.get_config("mongodb")
         self.client = pymongo.MongoClient(mongo_conf["host"], mongo_conf["port"])
@@ -27,6 +27,7 @@ class DataService(DataServiceInterface, BaseService, ABC):
         :return: None
         """
         # 检测数据库中的集合是否完整，补充创建不完整的集合
+        pass
 
     def create_collection(self, name):
         """
