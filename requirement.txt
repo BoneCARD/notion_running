@@ -1,3 +1,7 @@
-APScheduler
+apscheduler
 notion_client
-yaml
+PyYAML
+marshmallow
+aiohttp
+aiohttp_jinja2
+aiohttp_apispec

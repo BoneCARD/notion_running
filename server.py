@@ -3,7 +3,7 @@ import asyncio
 import logging
 
 from app.service.data_svc import DataService
-from app.service.event_svc import EventService
+from app.service.app_svc import ApplicationService
 from app.service.notionapi_svc import NotionAPIService
 from app.utility.base_world import BaseWorld
 
@@ -21,15 +21,17 @@ def setup_logger(level=logging.DEBUG):
 
 
 def run_tasks(services):
-    loop = asyncio.get_event_loop()
-    # loop.create_task()
-    # loop.run_until_complete(data_svc.)
+    loop = app_svc.get_loop()
+    loop.create_task()
+    plugins = BaseWorld.strip_yml(plugins_config_path)[0]["plugins"]
+    loop.run_until_complete(app_svc.load_plugins(plugins))
+    loop.run_until_complete(app_svc.load_data(loop.run_until_complete(data_svc.locate('plugins', dict(enabled=True)))))
 
-    # try:
-    #     logging.info('All systems ready.')
-    #     loop.run_forever()
-    # except KeyboardInterrupt:
-    #     loop.run_until_complete(services.get('app_svc').teardown(main_config_file=args.environment))
+    try:
+        logging.info('All systems ready.')
+        loop.run_forever()
+    except KeyboardInterrupt:
+        loop.run_until_complete(services.get('app_svc').teardown(main_config_file=args.environment))
 
 
 if __name__ == '__main__':
@@ -43,10 +45,11 @@ if __name__ == '__main__':
     setup_logger(getattr(logging, args.logLevel))
 
     main_config_path = 'conf/%s.yml' % args.environment
+    plugins_config_path = 'conf/plugins.yml'
     BaseWorld.apply_config('main', BaseWorld.strip_yml(main_config_path)[0])
     #
     data_svc = DataService()
-    event_svc = EventService()
+    app_svc = ApplicationService()
     notionapi_svc = NotionAPIService()
 
-    run_tasks(notionapi_svc.get_services())
+    run_tasks(app_svc.get_services())
