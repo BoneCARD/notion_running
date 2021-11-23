@@ -8,13 +8,14 @@ from app.service.interfaces.i_event_svc import EventServiceInterface
 from app.utility.base_service import BaseService
 
 
-class EventService(EventServiceInterface, BaseService, ABC):
+class ApplicationService(EventServiceInterface, BaseService, ABC):
     def __init__(self):
         # 事件需要有触发条件，发生时间，结果处理，事件关闭
-        self.log = self.add_service('even_svc', self)
+        self.log = self.add_service('app_svc', self)
         self.loop = asyncio.get_event_loop()
         self.scheduler = AsyncIOScheduler()
         self.scheduler.start()
+        self._loaded_plugins = []
 
     def get_loop(self):
         return self.loop
