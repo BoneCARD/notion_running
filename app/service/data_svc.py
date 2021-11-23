@@ -150,15 +150,3 @@ class DataService(DataServiceInterface, BaseService, ABC):
         for payload in self.client["core_payload"].find({}).sort("update_time", -1):
             payloads.append({"name": payload.get("name"), "creator": payload.get("creator")})
         return payloads
-
-
-if __name__ == '__main__':
-    from app.utility.base_world import BaseWorld
-    import asyncio
-    loop = asyncio.get_event_loop()
-
-    BaseWorld.apply_config('main', BaseWorld.strip_yml("../../conf/default.yml")[0])
-    data_svc = DataService()
-    with open("/home/ubuntu/Documents/2021 内部 1-1VV.rar", "rb") as f:
-        xx = f.read()
-        loop.run_until_complete(data_svc.upload_payload_indexer(params=dict(filename="test.rar"), file_data=xx))
