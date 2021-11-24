@@ -3,6 +3,7 @@ import pymongo
 from abc import ABC
 from bson import ObjectId
 from datetime import datetime
+from pymongo import ASCENDING, DESCENDING
 
 from app.utility.base_world import BaseWorld
 from app.utility.base_service import BaseService
@@ -13,21 +14,31 @@ class DataService(DataServiceInterface, BaseService, ABC):
     """
     数据服务
     """
+
     def __init__(self):
         self.log = self.add_service('data_svc', self)
         mongo_conf = BaseWorld.get_config("mongodb")
         self.client = pymongo.MongoClient(mongo_conf["host"], mongo_conf["port"])
         if mongo_conf["auth"]:
             self.client[mongo_conf["authbase"]].authenticate(mongo_conf["username"], mongo_conf["password"])
+        if mongo_conf["savebase"] not in self.client.list_database_names():
+            self.log.info("INFO[data_svc] %s no exits." % mongo_conf["savebase"])
         self.client = self.client[mongo_conf["savebase"]]
+        self._init_db(mongo_conf["savebase"])
 
-    def _init_db(self):
+    def _init_db(self, db):
         """
         初始化数据库
         :return: None
         """
-        # 检测数据库中的集合是否完整，补充创建不完整的集合
-        pass
+        for _c in self.dbStructure.collection:
+            if _c not in self.client.list_collection_names():
+                self.client.create_collection(_c)
+                self.log.info("INFO[data_svc] Create %s-collection in %s-db." % (_c, db))
+            for _i in self.dbStructure.index[_c]:
+                if _i not in self.client[_c].index_information():
+                    self.client[_c].create_index(**self.dbStructure.index[_c][_i])
+                    self.log.info("INFO[data_svc] Create %s-index %s-collection in %s-db." % (_i, _c, db))
 
     def create_collection(self, name):
         """
@@ -76,6 +87,7 @@ class DataService(DataServiceInterface, BaseService, ABC):
         return list(self.client[collection].find(filter_, {"_id": 0}).sort("_id", -1))
 
     ''' 文件管理 '''
+
     async def upload_payload_indexer(self, params, file_data):
         """
         上传文件
@@ -151,3 +163,48 @@ class DataService(DataServiceInterface, BaseService, ABC):
         for payload in self.client["core_payload"].find({}).sort("update_time", -1):
             payloads.append({"name": payload.get("name"), "creator": payload.get("creator")})
         return payloads
+
+    class dbStructure:
+        collection = ["news"]
+        index = {
+            # DESCENDING 降序 -1
+            # ASCENDING 升序 1
+            # "news": {
+            #     "link_-1_source_1": { # index索引名字命名的方式是根据输入keys与值做拼接的
+            #         "keys": [("link",DESCENDING), ("source",ASCENDING)],
+            #         "unique": True
+            #     }
+            # },
+            "news": {
+                "link_-1": {
+                    "keys": [("link", DESCENDING)],
+                    "unique": True
+                }
+            }
+        }
+        document = {
+            "news": {
+                "link": "",
+                "type": [],
+                "collect": {
+                    "title": "",
+                    "content": "",
+                    "property": {},
+                    "_collect time": BaseWorld.get_current_timestamp(),
+                    "release time": "",
+                    "other": None
+                },
+                "extract": {},
+                "translate": {},
+                "source": "",
+                "plugin object": "",
+                "feedback": {
+                    "read confirm": False,
+                    "valuable confirm": False,
+                    "classify": {},
+                    "interested in": [],
+                    "uninterested in": []
+                }
+
+            }
+        }
