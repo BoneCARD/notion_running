@@ -1,3 +1,5 @@
+import copy
+import uuid
 import gridfs
 import pymongo
 from abc import ABC
@@ -39,14 +41,6 @@ class DataService(DataServiceInterface, BaseService, ABC):
                 if _i not in self.client[_c].index_information():
                     self.client[_c].create_index(**self.dbStructure.index[_c][_i])
                     self.log.info("INFO[data_svc] Create %s-index %s-collection in %s-db." % (_i, _c, db))
-
-    def create_collection(self, name):
-        """
-        数据库新增集合
-        :param name: 集合的名字
-        :return: None
-        """
-        self.client.create_collection(name)
 
     def update_document(self, collection, document: dict):
         """
@@ -165,16 +159,19 @@ class DataService(DataServiceInterface, BaseService, ABC):
         return payloads
 
     class dbStructure:
-        collection = ["news"]
+        collection = [
+            "test",
+            "news"
+        ]
         index = {
             # DESCENDING 降序 -1
             # ASCENDING 升序 1
-            # "news": {
-            #     "link_-1_source_1": { # index索引名字命名的方式是根据输入keys与值做拼接的
-            #         "keys": [("link",DESCENDING), ("source",ASCENDING)],
-            #         "unique": True
-            #     }
-            # },
+            "test": {
+                "link_-1_source_1": { # index索引名字命名的方式是根据输入keys与值做拼接的
+                    "keys": [("link",DESCENDING), ("source",ASCENDING)],
+                    "unique": True
+                }
+            },
             "news": {
                 "link_-1": {
                     "keys": [("link", DESCENDING)],
@@ -183,7 +180,14 @@ class DataService(DataServiceInterface, BaseService, ABC):
             }
         }
         document = {
+            "test": {
+                "id": uuid.uuid4().__str__(),
+                "link": "",
+                "source": "",
+                "description": ""
+            },
             "news": {
+                "id": uuid.uuid4().__str__(),
                 "link": "",
                 "type": [],
                 "collect": {
@@ -205,6 +209,5 @@ class DataService(DataServiceInterface, BaseService, ABC):
                     "interested in": [],
                     "uninterested in": []
                 }
-
             }
         }
