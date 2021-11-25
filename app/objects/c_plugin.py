@@ -65,6 +65,7 @@ class Plugin(BaseObject):
             self.enabled = True
         except Exception as e:
             logging.error('Error enabling plugin=%s, %s' % (self.name, e))
+            logging.exception('Error enabling plugin=%s, %s' % (self.name, e))
 
     async def destroy(self, services):
         if self.enabled:

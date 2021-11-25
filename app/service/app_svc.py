@@ -16,9 +16,12 @@ class ApplicationService(ApplicationServiceInterface, BaseService, ABC):
         # 事件需要有触发条件，发生时间，结果处理，事件关闭
         self.log = self.add_service('app_svc', self)
         self.loop = asyncio.get_event_loop()
-        self.scheduler = AsyncIOScheduler()
+        self.scheduler = AsyncIOScheduler(timezone='Asia/Shanghai')
         self.scheduler.start()
         self._loaded_plugins = []
+
+    def teardown(self):
+        pass
 
     def get_loop(self):
         return self.loop
@@ -43,7 +46,6 @@ class ApplicationService(ApplicationServiceInterface, BaseService, ABC):
         async def load(p):
             plugin = Plugin(name=p)
             if plugin.load_plugin():
-                # await self.get_service('data_svc').store(plugin)
                 self._loaded_plugins.append(plugin)
 
             if plugin.name in plugins:
@@ -55,7 +57,3 @@ class ApplicationService(ApplicationServiceInterface, BaseService, ABC):
                 self.log.error('Problem locating the "%s" plugin. Ensure code base was cloned recursively.' % plug)
                 exit(0)
             asyncio.get_event_loop().create_task(load(plug))
-
-
-if __name__ == '__main__':
-    pass

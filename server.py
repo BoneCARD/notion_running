@@ -27,7 +27,7 @@ def run_tasks(services):
     try:
         logging.info('All systems ready.')
         loop.run_forever()
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, SystemError):
         loop.run_until_complete(services.get('app_svc').teardown(main_config_file=args.environment))
 
 
