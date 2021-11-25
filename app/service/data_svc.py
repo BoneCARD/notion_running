@@ -160,18 +160,18 @@ class DataService(DataServiceInterface, BaseService, ABC):
 
     class dbStructure:
         collection = [
-            "test",
+            # "test",
             "news"
         ]
         index = {
             # DESCENDING 降序 -1
             # ASCENDING 升序 1
-            "test": {
-                "link_-1_source_1": { # index索引名字命名的方式是根据输入keys与值做拼接的
-                    "keys": [("link",DESCENDING), ("source",ASCENDING)],
-                    "unique": True
-                }
-            },
+            # "test": {
+            #     "link_-1_source_1": { # index索引名字命名的方式是根据输入keys与值做拼接的
+            #         "keys": [("link",DESCENDING), ("source",ASCENDING)],
+            #         "unique": True
+            #     }
+            # },
             "news": {
                 "link_-1": {
                     "keys": [("link", DESCENDING)],
@@ -180,12 +180,12 @@ class DataService(DataServiceInterface, BaseService, ABC):
             }
         }
         document = {
-            "test": {
-                "id": uuid.uuid4().__str__(),
-                "link": "",
-                "source": "",
-                "description": ""
-            },
+            # "test": {
+            #     "id": uuid.uuid4().__str__(),
+            #     "link": "",
+            #     "source": "",
+            #     "description": ""
+            # },
             "news": {
                 "id": uuid.uuid4().__str__(),
                 "link": "",
