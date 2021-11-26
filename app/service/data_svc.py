@@ -196,6 +196,7 @@ class DataService(DataServiceInterface, BaseService, ABC):
                     "property": {},
                     "_collect time": BaseWorld.get_current_timestamp(),
                     "release time": "",
+                    "author": "",
                     "other": None
                 },
                 "extract": {},

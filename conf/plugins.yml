@@ -1,3 +1,3 @@
 plugins:
+#  - test # 测试平台服务的插件
   - infospider
-  - test
