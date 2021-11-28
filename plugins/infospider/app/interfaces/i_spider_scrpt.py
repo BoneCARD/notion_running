@@ -1,9 +1,13 @@
+import re
 import abc
 import aiohttp
 from tomd import Tomd
 
 
 class SpiderInterface(abc.ABC):
+    spider_name = None
+    url_format = None
+
     @staticmethod
     def article_template():
         return {
@@ -37,3 +41,19 @@ class SpiderInterface(abc.ABC):
         markdown = Tomd(article_content).markdown
         with open('make.md', 'w', encoding='utf-8') as file:
             file.write(markdown)
+
+    def check_url(self, url):
+        """
+        检查url是否与爬虫匹配
+        :return: bool
+        """
+        if re.match(self.url_format, url):
+            return True
+        return False
+
+    async def get_article(self, url):
+        """
+        下载文章的信息
+        :param url:
+        :return: None
+        """

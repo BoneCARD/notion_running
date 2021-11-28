@@ -162,11 +162,13 @@ class NotionAPIServiceInterface(abc.ABC):
         }
 
     @staticmethod
-    def demo_block_HeadingX(X, content, link=None):
+    def demo_block_HeadingX(X: str, content, link=None):
         """
         :param :
         :type :
         """
+        if str(X) not in ["1", "2", "3"]:
+            raise Exception("输入的X参数(%s)有问题，heading只有1,2,3三种格式" % X)
         return {
             "type": "heading_" + str(X),
             "heading_" + str(X): {

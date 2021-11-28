@@ -12,6 +12,8 @@ from app.utility.base_world import BaseWorld
 class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
     def __init__(self):
         self.notion = AsyncClient(auth=BaseWorld.get_config("NOTION_TOKEN"))
+        self.root_block_id = BaseWorld.get_config("NOTION_ROOT_ID")
+        self.notion.options
         # self.notion = Client(auth=BaseWorld.get_config("NOTION_TOKEN"))
         self.log = self.add_service('notionapi_svc', self)
 

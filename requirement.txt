@@ -7,5 +7,5 @@ aiohttp_jinja2
 aiohttp_apispec
 pymongo
 bson
-tomd
 beautifulsoup4
+html2markdown
