@@ -1,0 +1,53 @@
+<article class="baidu_pl">
+<div class="article_content clearfix" id="article_content">
+<link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/ck_htmledit_views-1a85854398.css" rel="stylesheet"/>
+<div class="markdown_views prism-atom-one-dark" id="content_views">
+<svg style="display: none;" xmlns="http://www.w3.org/2000/svg">
+<path d="M5,0 0,2.5 5,5z" id="raphael-marker-block" stroke-linecap="round" style="-webkit-tap-highlight-color: rgba(0, 0, 0, 0);"></path>
+</svg>
+<h3><a id="notion_api_0"></a>notion api</h3>
+<p>前几天notion开放了api，<a href="https://developers.notion.com/">notion开发者文档</a>可以了解。</p>
+<h3><a id="pythonnotion_3"></a>python操作notion</h3>
+<ol><li> <p>创建一个 Notion 机器人，输入名字，即可快速创建。</p> </li><li> <p>获取Token，点击 show，然后复制备用。<br/> <img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210519165744424.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3hpbmh1b2lw,size_16,color_FFFFFF,t_70"/></p> </li><li> <p>在需要使用API的页面中，点击 Share 并选择 Invite ，将机器人邀请进去，让其用于编辑的权限。<br/> <img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210519170931173.png"><br/> <img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210519170938359.png"/></img></p> </li><li> <p>获取数据表的 <code>database_id</code>，点击数据表右上方的 <code>...</code> 选择 <code>Copylink</code> ，<br/> <img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210519171042116.png"><br/> 连接如下方：<code>https://www.notion.so/xinhuoip/9bcf00dce55c42799f3b177dc325aa18?v=217bbe82893e4e4aa228a19f3f2dc888</code> ，其中 <code>9bcf00dc-e55c-4279-9f3b-177dc325aa18</code> 即为<code>database_id</code>。</img></p> </li><li> <p>使用python的requests库get方法来读取notion页面数据，示例代码如下：</p> <pre><code class="prism language-python"><span class="token keyword">import</span> requests
+token <span class="token operator">=</span> <span class="token string">'这个是你创建机器人时获取到的见第二步'</span>
+r <span class="token operator">=</span> requests<span class="token punctuation">.</span>request<span class="token punctuation">(</span>
+        <span class="token string">"GET"</span><span class="token punctuation">,</span>
+        <span class="token string">"https://api.notion.com/v1/pages/5b35b115ddc442e080f1b1b27e5b0ae0"</span><span class="token punctuation">,</span><span class="token comment">#字符串为页面id</span>
+        headers<span class="token operator">=</span><span class="token punctuation">{<!-- --></span><span class="token string">"Authorization"</span><span class="token punctuation">:</span> <span class="token string">"Bearer "</span> <span class="token operator">+</span> token<span class="token punctuation">,</span> <span class="token string">"Notion-Version"</span><span class="token punctuation">:</span> <span class="token string">"2021-05-13"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>r<span class="token punctuation">.</span>txet<span class="token punctuation">)</span>
+</code></pre> <p>以上代码输出结果如下：<br/> <img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210519170009273.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3hpbmh1b2lw,size_16,color_FFFFFF,t_70"/></p> </li><li> <p>通过python的requests库中的post方法来操作notion添加数据，示例代码如下：</p> <pre><code class="prism language-python"><span class="token keyword">import</span> requests
+token <span class="token operator">=</span> <span class="token string">'第二步中获取到的token值'</span>
+<span class="token keyword">def</span> <span class="token function">post</span><span class="token punctuation">(</span>url<span class="token punctuation">,</span>title<span class="token punctuation">,</span>content<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    requests<span class="token punctuation">.</span>request<span class="token punctuation">(</span><span class="token string">"POST"</span><span class="token punctuation">,</span>
+    <span class="token string">"https://api.notion.com/v1/pages"</span><span class="token punctuation">,</span>
+    json<span class="token operator">=</span><span class="token punctuation">{<!-- --></span>
+        <span class="token string">"parent"</span><span class="token punctuation">:</span> <span class="token punctuation">{<!-- --></span><span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"database_id"</span><span class="token punctuation">,</span> <span class="token string">"database_id"</span><span class="token punctuation">:</span> <span class="token string">"9bcf00dc-e55c-4279-9f3b-177dc325aa18"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token string">"properties"</span><span class="token punctuation">:</span> <span class="token punctuation">{<!-- --></span>
+            <span class="token string">"来源"</span><span class="token punctuation">:</span> <span class="token punctuation">{<!-- --></span><span class="token string">"url"</span><span class="token punctuation">:</span> url<span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token string">"标题"</span><span class="token punctuation">:</span> <span class="token punctuation">{<!-- --></span><span class="token string">"title"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">{<!-- --></span><span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"text"</span><span class="token punctuation">,</span> <span class="token string">"text"</span><span class="token punctuation">:</span> <span class="token punctuation">{<!-- --></span><span class="token string">"content"</span><span class="token punctuation">:</span> title<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+            <span class="token string">"描述"</span><span class="token punctuation">:</span> <span class="token punctuation">{<!-- --></span><span class="token string">"rich_text"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">{<!-- --></span><span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"text"</span><span class="token punctuation">,</span> <span class="token string">"text"</span><span class="token punctuation">:</span> <span class="token punctuation">{<!-- --></span><span class="token string">"content"</span><span class="token punctuation">:</span> content<span class="token punctuation">}</span><span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token string">"children"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span>
+            <span class="token punctuation">{<!-- --></span>
+            <span class="token string">"object"</span><span class="token punctuation">:</span> <span class="token string">"block"</span><span class="token punctuation">,</span>
+            <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"paragraph"</span><span class="token punctuation">,</span>
+            <span class="token string">"paragraph"</span><span class="token punctuation">:</span> <span class="token punctuation">{<!-- --></span>
+                <span class="token string">"text"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token punctuation">{<!-- --></span> <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"text"</span><span class="token punctuation">,</span> <span class="token string">"text"</span><span class="token punctuation">:</span> <span class="token punctuation">{<!-- --></span> <span class="token string">"content"</span><span class="token punctuation">:</span> content <span class="token punctuation">}</span> <span class="token punctuation">}</span><span class="token punctuation">]</span>
+            <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">]</span>
+    <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    headers<span class="token operator">=</span><span class="token punctuation">{<!-- --></span><span class="token string">"Authorization"</span><span class="token punctuation">:</span> <span class="token string">"Bearer "</span> <span class="token operator">+</span> token<span class="token punctuation">,</span> <span class="token string">"Notion-Version"</span><span class="token punctuation">:</span> <span class="token string">"2021-05-13"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>title <span class="token operator">+</span> <span class="token string">'---'</span> <span class="token operator">+</span>url<span class="token punctuation">)</span> 
+
+post<span class="token punctuation">(</span><span class="token string">'https://www.xinhuoip.com'</span><span class="token punctuation">,</span><span class="token string">'薪火IP全国动态pptp 静态IP 单进程单IP 单窗口单IP'</span><span class="token punctuation">,</span><span class="token string">'工作室客户量大优惠、支持游戏、试玩、短视频等各类项目，客服QQ：1167064'</span><span class="token punctuation">)</span>
+</code></pre> <p>代码运行效果如下：<br/> <img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210519170629236.png"/><br/> 数据添加成功，代码中children中的部分为在此条数据的page中添加一个block，显示效果如下：<br/> <img alt="在这里插入图片描述" src="https://img-blog.csdnimg.cn/20210519170653795.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L3hpbmh1b2lw,size_16,color_FFFFFF,t_70"/></p> </li><li> <p>结合以前的线报类代码，可直接将采集的数据直接写入到notion。</p> </li></ol>
+<p>原文地址：<a href="https://www.xinhuoip.com">全国动态pptp</a></p>
+</div>
+<link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/editerView/markdown_views-d7a94ec6ab.css" rel="stylesheet"/>
+<link href="https://csdnimg.cn/release/blogv2/dist/mdeditor/css/style-49037e4d27.css" rel="stylesheet"/>
+</div>
+<div id="treeSkill"></div>
+</article>

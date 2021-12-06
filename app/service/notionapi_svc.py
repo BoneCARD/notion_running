@@ -13,7 +13,6 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
     def __init__(self):
         self.notion = AsyncClient(auth=BaseWorld.get_config("NOTION_TOKEN"))
         self.root_block_id = BaseWorld.get_config("NOTION_ROOT_ID")
-        self.notion.options
         # self.notion = Client(auth=BaseWorld.get_config("NOTION_TOKEN"))
         self.log = self.add_service('notionapi_svc', self)
 
@@ -23,7 +22,10 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
     async def get_all_database_info(self):
         return await self.notion.databases.list()
 
-    async def database_add_page(self, database_id, properties: dict, children: list= []):
+    async def add_blocks(self, page_id, children: list = []):
+        await self.notion.blocks.children.append(page_id, children=children)
+
+    async def database_add_page(self, database_id, properties: dict, children: list = []):
         """
         在database数据库中添加page
         :param database_id: 数据库的ID
@@ -60,20 +62,4 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
 
 
 if __name__ == '__main__':
-    from pprint import pprint
-
-    BaseWorld.apply_config('main', BaseWorld.strip_yml("../../conf/default.yml")[0])
-    notionapi_svc = NotionAPIService()
-    import asyncio
-
-    loop = asyncio.get_event_loop()
-
-    demo = notionapi_svc.demo_property_Title("Name", "Yes")
-    demo.update(notionapi_svc.demo_property_Checkbox("Check", True))
-    demo.update(notionapi_svc.demo_property_URL("URL", "http://qq.com"))
-    # loop.run_until_complete(notionapi_svc.database_add_page("85ca43b94ff24816bc2852209a00b5a4",
-    #                                                         properties=demo,
-    #                                                         children=[
-    #                                                             notionapi_svc.demo_block_Paragraph([notionapi_svc.demo_Text("yes you are")])
-    #                                                         ]))
-    loop.run_until_complete(notionapi_svc.database_querry_page("85ca43b94ff24816bc2852209a00b5a4"))
+    pass
