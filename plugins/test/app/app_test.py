@@ -1,3 +1,5 @@
+from aiohttp import web
+
 from app.utility.base_service import BaseService
 
 
@@ -14,3 +16,5 @@ class Apptest(BaseService):
         scheduler = self.app_svc.get_scheduler()
         scheduler.add_job(self.do, 'interval', seconds=3)
 
+    async def hello(self, request):
+        return web.json_response(dict(x=1))

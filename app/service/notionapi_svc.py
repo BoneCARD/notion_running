@@ -40,7 +40,7 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
         """
         await self.notion.pages.create(parent={"database_id": database_id}, properties=properties, children=children)
 
-    async def database_querry_page(self, database_id):
+    async def database_query_page(self, database_id):
         """
         在database数据库中查询page数据的信息
         :param database_id:
@@ -52,7 +52,7 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
     async def delete_page(self, page_id):
         await self.notion.blocks.delete(page_id)
 
-    async def querry_page(self, page_id):
+    async def query_page(self, page_id):
         """
         查询page中的数据信息（但是官方并不是说page，说的是block）
         :param page_id:

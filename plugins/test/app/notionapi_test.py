@@ -14,12 +14,12 @@ class Notionapitest(BaseService):
         print(await self.notionapi_svc.list_api_users())
         print(await self.notionapi_svc.get_all_database_info())
 
-    async def querry_page(self):
-        firstdatabase = await self.notionapi_svc.database_querry_page(self.test_page_id)
+    async def query_page(self):
+        firstdatabase = await self.notionapi_svc.database_query_page(self.test_page_id)
         # database的列表信息
         print(json.dumps(firstdatabase, indent=5))
         # 查询database中第二个page的信息
-        print(json.dumps(await self.notionapi_svc.querry_page(firstdatabase[1]["id"]), indent=5))
+        print(json.dumps(await self.notionapi_svc.query_page(firstdatabase[1]["id"]), indent=5))
 
     async def add_page(self):
         # 设置page的属性信息
@@ -33,7 +33,7 @@ class Notionapitest(BaseService):
         # 在page中添加信息
 
     async def delete_page(self):
-        firstdatabase = await self.notionapi_svc.database_querry_page(self.test_page_id)
+        firstdatabase = await self.notionapi_svc.database_query_page(self.test_page_id)
         delete_ids = []
         for _page in firstdatabase:
             for _property in _page["properties"]:

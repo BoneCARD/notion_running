@@ -12,8 +12,9 @@ from app.utility.base_service import BaseService
 
 
 class ApplicationService(ApplicationServiceInterface, BaseService, ABC):
-    def __init__(self):
+    def __init__(self, application):
         # 事件需要有触发条件，发生时间，结果处理，事件关闭
+        self.application = application
         self.log = self.add_service('app_svc', self)
         self.loop = asyncio.get_event_loop()
         self.scheduler = AsyncIOScheduler(timezone='Asia/Shanghai')
@@ -57,3 +58,5 @@ class ApplicationService(ApplicationServiceInterface, BaseService, ABC):
                 self.log.error('Problem locating the "%s" plugin. Ensure code base was cloned recursively.' % plug)
                 exit(0)
             asyncio.get_event_loop().create_task(load(plug))
+
+        # aiohttp_jinja2.setup(self.application, loader=jinja2.FileSystemLoader(templates))

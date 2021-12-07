@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*
-import argparse
 import logging
+import argparse
+from aiohttp import web
 
 from app.service.data_svc import DataService
 from app.service.app_svc import ApplicationService
@@ -20,10 +21,18 @@ def setup_logger(level=logging.DEBUG):
     logging.captureWarnings(True)
 
 
+async def start_server():
+    # await auth_svc.apply(app_svc.application, BaseWorld.get_config('users'))
+    runner = web.AppRunner(app_svc.application)
+    await runner.setup()
+    await web.TCPSite(runner, BaseWorld.get_config('host'), BaseWorld.get_config('port')).start()
+
+
 def run_tasks(services):
     loop = app_svc.get_loop()
     plugins = BaseWorld.strip_yml(plugins_config_path)[0]["plugins"]
     loop.run_until_complete(app_svc.load_plugins(plugins))
+    loop.run_until_complete(start_server())
 
     try:
         logging.info('All systems ready.')
@@ -49,7 +58,8 @@ if __name__ == '__main__':
 
     # 启动公共服务
     data_svc = DataService()
-    app_svc = ApplicationService()
+    # app_svc = ApplicationService()
+    app_svc = ApplicationService(application=web.Application(client_max_size=5120 ** 2))
     notionapi_svc = NotionAPIService()
 
     run_tasks(app_svc.get_services())

@@ -19,10 +19,15 @@ async def enable(services):
     # await data_test.delete_test()
 
     # notion新增数据查看数据
-    notionapi_test = Notionapitest(services=services)
+    # notionapi_test = Notionapitest(services=services)
     # await notionapi_test.show_info()
-    # await notionapi_test.querry_page()
+    # await notionapi_test.query_page()
     # await notionapi_test.add_page()
     # await notionapi_test.delete_page()
-    await notionapi_test.add_block()
+    # await notionapi_test.add_block()
+
+    # 测试app
+    # app = services.get('app_svc').application
+    # app_test = Apptest(services=services)
+    # app.router.add_route('*', '/123', app_test.hello)
     pass

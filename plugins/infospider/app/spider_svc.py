@@ -25,7 +25,7 @@ class SpiderService(BaseService):
             self.initiative_page_id = notion_conf["initiative"]
             self.passive_page_id = notion_conf["passive"]
             # TODO 1: 加上判断加载的page id是否在notion返回数据的信息中；
-            # print(json.dumps(await self.notionapi_svc.querry_page(self.notionapi_svc.root_block_id), indent=4))
+            # print(json.dumps(await self.notionapi_svc.query_page(self.notionapi_svc.root_block_id), indent=4))
             # TODO 2: 并做自动识别page id的功能
         except Exception as E:
             self.log.logger.exception("EXCEPTION[spider_svc]加载notion的子页面: %s" % E)
@@ -36,7 +36,7 @@ class SpiderService(BaseService):
         监控notion的url页面，对新增的ur进行爬虫
         """
         # 获取database中所有的page信息
-        database_info = await self.notionapi_svc.database_querry_page(self.initiative_page_id)
+        database_info = await self.notionapi_svc.database_query_page(self.initiative_page_id)
         # print(json.dumps(database_info, indent=4))
         for _page in database_info:
             if _page["properties"]["wait spider"]["checkbox"]:
