@@ -59,9 +59,8 @@ class html2notion:
         self.html_db_ROOT = None
         self.blocks_list = []
 
-    def html2notion(self, ROOT_id, blocks_list=[], ignore_local=False):
+    def html2notion(self, ROOT_id, ignore_local=False):
         """
-        :param blocks_list:
         :param ROOT_id:
         :param ignore_local: 默认不识别当前标签是否是图片、分割符等非文本(nontext)标签
         """
@@ -153,13 +152,6 @@ class html2notion:
             # 由于单个text的content最大长度为2000,所以需要做分片
             _block_texts = [i_notion.demo_Text(code_t[_:_ + 2000]) for _ in range(0, len(code_t), 2000)]
             self.blocks_list.append(i_notion.demo_text_block(_block_type, _block_texts))
-        if _local["name"] == "table" and self.get_status(_local, "undo"):
-            table_text = []
-            for _code_id in self.html_db[ROOT_id]["child"]:
-                self.change_status(_code_id)
-                if self.html_db[_code_id]["name"] == "code":
-                    if self.html_db[_code_id]["text"]:
-                        code_texts.append(self.html_db[_code_id]["text"])
 
     def _convert_nontext_element(self, ROOT_id):
         _local = self.html_db[ROOT_id]

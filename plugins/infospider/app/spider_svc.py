@@ -28,7 +28,7 @@ class SpiderService(BaseService):
             # print(json.dumps(await self.notionapi_svc.query_page(self.notionapi_svc.root_block_id), indent=4))
             # TODO 2: 并做自动识别page id的功能
         except Exception as E:
-            self.log.logger.exception("EXCEPTION[spider_svc]加载notion的子页面: %s" % E)
+            self.log.exception("EXCEPTION[spider_svc]加载notion的子页面: %s" % E)
             exit(-1)
 
     async def initiative_look(self):

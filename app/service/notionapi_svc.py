@@ -40,13 +40,51 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
         """
         await self.notion.pages.create(parent={"database_id": database_id}, properties=properties, children=children)
 
-    async def database_query_page(self, database_id):
+    async def database_update_page(self, page_id, properties: dict):
+        """
+        在database数据库中添加page
+        :param page_id: 页面的ID
+        :param properties: 新Page的属性，demo_property_XXX有关的数据结构
+            模板：
+                demo = notionapi_svc.demo_property_Title("Name", "Yes")
+                demo.update(notionapi_svc.demo_property_Checkbox("Check", True))
+        """
+        await self.notion.pages.update(page_id=page_id, properties=properties)
+
+    async def database_query_page(self, database_id, _filter=None, page_size=None, start_cursor=None, sorts=None, complete_resp=False):
         """
         在database数据库中查询page数据的信息
+        :param complete_resp: 是否
+        :param sorts:
+        :param start_cursor:
         :param database_id:
+        :param _filter:
+        :param page_size:
+            {
+                "and": [
+                    {
+                        "property": "关联日期", # 属性名称
+                        "relation": {
+                            "contains": "9e1d9ae516904aad935a5a3e32c8b3eb"
+                        }
+
+                    }
+                ]
+            }
         :return : list
         """
-        _ = await self.notion.databases.query(database_id)
+        kwargs = {}
+        if _filter:
+            kwargs.update(dict(filter=_filter))
+        if page_size:
+            kwargs.update(dict(page_size=page_size))
+        if start_cursor:
+            kwargs.update(dict(start_cursor=start_cursor))
+        if sorts:
+            kwargs.update(dict(sorts=sorts))
+        _ = await self.notion.databases.query(database_id, **kwargs)
+        if complete_resp:
+            return _
         return _["results"]
 
     async def delete_page(self, page_id):

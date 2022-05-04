@@ -1,0 +1,222 @@
+{
+    "a": {
+        "classInterpret": "形容词",
+        "parent": null
+    },
+    "ad": {
+        "classInterpret": "副形词",
+        "parent": "a"
+    },
+    "ag": {
+        "classInterpret": "形容词性语素",
+        "parent": "a"
+    },
+    "an": {
+        "classInterpret": "名形词",
+        "parent": "a"
+    },
+    "b": {
+        "classInterpret": "区别词",
+        "parent": null
+    },
+    "c": {
+        "classInterpret": "连词",
+        "parent": null
+    },
+    "d": {
+        "classInterpret": "副词",
+        "parent": null
+    },
+    "df": {
+        "classInterpret": "方位副词",
+        "parent": "d"
+    },
+    "dg": {
+        "classInterpret": "副语素",
+        "parent": "d"
+    },
+    "e": {
+        "classInterpret": "叹词",
+        "parent": null
+    },
+    "f": {
+        "classInterpret": "方位词",
+        "parent": null
+    },
+    "g": {
+        "classInterpret": "语素",
+        "parent": null
+    },
+    "h": {
+        "classInterpret": "前接成分",
+        "parent": null
+    },
+    "i": {
+        "classInterpret": "成语",
+        "parent": null
+    },
+    "j": {
+        "classInterpret": "简称略称",
+        "parent": null
+    },
+    "k": {
+        "classInterpret": "后接成分",
+        "parent": null
+    },
+    "l": {
+        "classInterpret": "习用语",
+        "parent": null
+    },
+    "m": {
+        "classInterpret": "数词",
+        "parent": null
+    },
+    "mg": {
+        "classInterpret": "数词语素",
+        "parent": "m"
+    },
+    "mq": {
+        "classInterpret": "数量词",
+        "parent": "m"
+    },
+    "n": {
+        "classInterpret": "名词",
+        "parent": null
+    },
+    "ng": {
+        "classInterpret": "名词性语素",
+        "parent": "n"
+    },
+    "nr": {
+        "classInterpret": "人名",
+        "parent": "n"
+    },
+    "nrfg": {
+        "classInterpret": "姓名",
+        "parent": "n"
+    },
+    "nrt": {
+        "classInterpret": "机构团体代名",
+        "parent": "n"
+    },
+    "ns": {
+        "classInterpret": "地名",
+        "parent": "n"
+    },
+    "nt": {
+        "classInterpret": "机构团体名",
+        "parent": "n"
+    },
+    "nz": {
+        "classInterpret": "其他专名",
+        "parent": "n"
+    },
+    "o": {
+        "classInterpret": "拟声词",
+        "parent": null
+    },
+    "p": {
+        "classInterpret": "介词",
+        "parent": null
+    },
+    "q": {
+        "classInterpret": "量词",
+        "parent": null
+    },
+    "r": {
+        "classInterpret": "代词",
+        "parent": null
+    },
+    "rg": {
+        "classInterpret": "代词性语素",
+        "parent": "r"
+    },
+    "rr": {
+        "classInterpret": "人称代词",
+        "parent": "r"
+    },
+    "rz": {
+        "classInterpret": "指示代词",
+        "parent": "r"
+    },
+    "s": {
+        "classInterpret": "处所词",
+        "parent": null
+    },
+    "t": {
+        "classInterpret": "时间词",
+        "parent": null
+    },
+    "tg": {
+        "classInterpret": "时语素",
+        "parent": "t"
+    },
+    "u": {
+        "classInterpret": "助词",
+        "parent": null
+    },
+    "ud": {
+        "classInterpret": "结构助词",
+        "parent": "u"
+    },
+    "ug": {
+        "classInterpret": "时态助词",
+        "parent": "u"
+    },
+    "uj": {
+        "classInterpret": "结构助词",
+        "parent": "u"
+    },
+    "ul": {
+        "classInterpret": "时态助词",
+        "parent": "u"
+    },
+    "uv": {
+        "classInterpret": "结构助词",
+        "parent": "u"
+    },
+    "uz": {
+        "classInterpret": "时态助词",
+        "parent": "u"
+    },
+    "v": {
+        "classInterpret": "动词",
+        "parent": null
+    },
+    "vd": {
+        "classInterpret": "副动词",
+        "parent": "v"
+    },
+    "vg": {
+        "classInterpret": "动词性语素",
+        "parent": "v"
+    },
+    "vi": {
+        "classInterpret": "不及物动词",
+        "parent": "v"
+    },
+    "vn": {
+        "classInterpret": "名动词",
+        "parent": "v"
+    },
+    "vq": {
+        "classInterpret": "趋向动词",
+        "parent": "v"
+    },
+    "x": {
+        "classInterpret": "非语素词（包含标点符号）",
+        "parent": null
+    },
+    "y": {
+        "classInterpret": "语气词",
+        "parent": null
+    },
+    "z": {
+        "classInterpret": "状态词",
+        "parent": null
+    },
+    "zg": {
+        "classInterpret": "状态词语素",
+        "parent": "z"
+    }
+}

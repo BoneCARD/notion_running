@@ -25,7 +25,7 @@ async def start_server():
     # await auth_svc.apply(app_svc.application, BaseWorld.get_config('users'))
     runner = web.AppRunner(app_svc.application)
     await runner.setup()
-    await web.TCPSite(runner, BaseWorld.get_config('host'), BaseWorld.get_config('port')).start()
+    # await web.TCPSite(runner, BaseWorld.get_config('host'), BaseWorld.get_config('port')).start()
 
 
 def run_tasks(services):

@@ -36,6 +36,14 @@ class NotionAPIServiceInterface(abc.ABC):
         }
 
     @staticmethod
+    def demo_property_normal(key, value, _type):
+        return {
+            key: {
+                _type: value
+            }
+        }
+
+    @staticmethod
     def demo_simple_block(_type: str):
         """
         :param _type:

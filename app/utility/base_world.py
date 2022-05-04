@@ -1,6 +1,7 @@
 import binascii
 import string
 import re
+import os
 import yaml
 import logging
 import subprocess
@@ -127,3 +128,29 @@ class BaseWorld:
     @staticmethod
     def second2timestamp(second):
         return int(second) * 1000
+
+    @staticmethod
+    def getfile(filepath, postfix='.json'):
+        """
+        递归列出目录下的所有文件内容，并以列表的形式返回
+        Args:
+            filepath：
+                type：str
+                所有列出的目录路径
+            postfix：
+                type：str or None
+                后缀，如.php，那么返回的列表中只会有php后缀的文件。如果该项为none，则返回所有文件
+        Returns:
+            []
+            :param filepath:
+            :param postfix:
+        """
+        files = []
+        for parent, dirnames, filenames in os.walk(filepath, followlinks=True):
+            for filename in filenames:
+                if postfix is None:
+                    files.append(os.path.join(parent, filename))
+                else:
+                    if filename.endswith(postfix):
+                        files.append(os.path.join(parent, filename))
+        return files

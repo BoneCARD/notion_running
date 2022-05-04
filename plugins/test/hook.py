@@ -13,16 +13,16 @@ async def enable(services):
     # app_test.add_task()
 
     # 数据库增删改查
-    # data_test = Datatest(services=services)
+    data_test = Datatest(services=services)
     # await data_test.save_test()
     # await data_test.find_test()
     # await data_test.delete_test()
 
     # notion新增数据查看数据
-    # notionapi_test = Notionapitest(services=services)
-    # await notionapi_test.show_info()
+    notionapi_test = Notionapitest(services=services)
+    await notionapi_test.show_info()
     # await notionapi_test.query_page()
-    # await notionapi_test.add_page()
+    await notionapi_test.add_page()
     # await notionapi_test.delete_page()
     # await notionapi_test.add_block()
 
