@@ -153,7 +153,7 @@ class autorun_task(BaseService):
         scheduler.add_job(self.calculate_cost_time, 'interval', seconds=600)
         # scheduler.add_job(self.transfo_training_set, 'cron', day_of_week=1, hour=11)
         # await self.transfo_training_set()
-        await self.generate_training_model()
+        # await self.generate_training_model()
 
 
 if __name__ == '__main__':

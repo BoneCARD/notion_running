@@ -57,7 +57,7 @@ if __name__ == '__main__':
     BaseWorld.apply_config('main', BaseWorld.strip_yml(main_config_path)[0])
 
     # 启动公共服务
-    data_svc = DataService()
+    # data_svc = DataService()
     # app_svc = ApplicationService()
     app_svc = ApplicationService(application=web.Application(client_max_size=5120 ** 2))
     notionapi_svc = NotionAPIService()
