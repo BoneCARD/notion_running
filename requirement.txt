@@ -6,6 +6,8 @@ aiohttp
 aiohttp_jinja2
 aiohttp_apispec
 pymongo
-bson
 beautifulsoup4
 html2markdown
+jieba
+numpy
+pandas
