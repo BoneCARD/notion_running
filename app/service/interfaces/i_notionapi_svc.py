@@ -6,10 +6,17 @@ from notion_client import AsyncClient
 class NotionAPIServiceInterface(abc.ABC):
 
     @staticmethod
-    def demo_property_Title(title_key, title_value):
+    def demo_property_text(_type, title_key, title_value):
+        """
+
+        :param _type: title、rich_text
+        :param title_key:
+        :param title_value:
+        :return:
+        """
         return {
             title_key: {
-                "title": [
+                _type: [
                     {
                         "text": {
                             "content": title_value
@@ -26,6 +33,14 @@ class NotionAPIServiceInterface(abc.ABC):
                 "url": value
             }
         }
+
+    # @staticmethod
+    # def demo_property_select(key, value):
+    #     return {
+    #         key: {
+    #             "url": value
+    #         }
+    #     }
 
     @staticmethod
     def demo_property_Checkbox(key, value: bool = False):
