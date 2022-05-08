@@ -1,4 +1,5 @@
 from app.utility.base_world import BaseWorld
+from app.utility.logger import Logger
 
 
 class BaseService(BaseWorld):
@@ -7,7 +8,8 @@ class BaseService(BaseWorld):
 
     def add_service(self, name, svc):
         self.__class__._services[name] = svc
-        return self.create_logger(name)
+        # return self.create_logger(name)
+        return Logger(name)
 
     @classmethod
     def remove_service(cls, name):

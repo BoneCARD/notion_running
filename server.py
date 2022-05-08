@@ -20,6 +20,18 @@ def setup_logger(level=logging.DEBUG):
             logging.getLogger(logger_name).setLevel(100)
     logging.captureWarnings(True)
 
+def set_logging_state():
+    state = logging.FATAL
+    logging.getLogger('aiohttp.access').setLevel(state)
+    logging.getLogger('aiohttp_session').setLevel(state)
+    logging.getLogger('aiohttp.server').setLevel(state)
+    logging.getLogger('asyncio').setLevel(state)
+    logging.getLogger("requests.packages.urllib3").setLevel(logging.WARNING)
+    logging.getLogger("apscheduler").setLevel(logging.WARNING)
+    logging.getLogger("urllib3.connectionpool").setLevel(logging.WARNING)
+    logging.getLogger('chardet.charsetprober').setLevel(logging.INFO)
+    logging.getLogger().setLevel(logging.DEBUG)
+
 
 async def start_server():
     # await auth_svc.apply(app_svc.application, BaseWorld.get_config('users'))

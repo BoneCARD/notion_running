@@ -58,8 +58,9 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
         :param sorts:
         :param start_cursor:
         :param database_id:
-        :param _filter:
         :param page_size:
+        :param _filter:
+        e.g. 1
             {
                 "and": [
                     {
@@ -71,6 +72,33 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
                     }
                 ]
             }
+        e.g. 2
+            {
+            "and": [
+                {
+                    "or": [
+                        {
+                            "property": "🎰大类-维度",
+                            "select": {
+                                "is_empty": True
+                            }
+                        },
+                        {
+                            "property": "👣小类行为",
+                            "select": {
+                                "is_empty": True
+                            }
+                        },
+                    ],
+                },
+                {
+                    "property": "自动化记录",
+                    "rich_text": {
+                        "is_empty": True
+                    }
+                },
+            ]
+        }
         :return : list
         """
         kwargs = {}
