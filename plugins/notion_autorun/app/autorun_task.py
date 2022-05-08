@@ -24,21 +24,21 @@ class autorun_task(BaseService):
         self.select_uuid_db = {}
         self.N_Algorithm_info = [
             {
-                "name": "算法1",
+                "name": "[1]",
                 "db": None,
                 "key_generate": lambda _name: _name,
                 # "statistics_value_generate": lambda big_value, small_value: str(big_value)+" "+str(small_value),
                 "rate": 0.15
             },
             {
-                "name": "算法2",
+                "name": "[2]",
                 "db": None,
                 "key_generate": lambda _name: self._sort(self._cut(_name)),
                 # "statistics_value_generate": lambda big_value, small_value: str(big_value) + " " + str(small_value),
                 "rate": 0.3
             },
             {
-                "name": "算法3",
+                "name": "[3]",
                 "db": None,
                 "key_generate": lambda _name: self._sort(jieba.analyse.extract_tags(_name, 20, allowPOS=['ns', 'n', 'vn', 'v', 'nr'], withFlag=False)),
                 # "statistics_value_generate": lambda big_value, small_value: str(big_value) + " " + str(small_value),
@@ -47,7 +47,7 @@ class autorun_task(BaseService):
         ]
         self.S_Algorithm_info = [
             {
-                "name": "[算法5]",
+                "name": "[5]",
                 "db": None,
                 "key_generate": lambda _name: self._sort(self._cut(_name), False),
                 "rate": 0.4
@@ -141,7 +141,7 @@ class autorun_task(BaseService):
         raw_db = json.dumps(time_event_db, indent=4, ensure_ascii=False)
         db_path = os.path.join(self.db_dir, "{}_{}.json".format(self.local_week(), uuid.uuid4().__str__()))
         with open(db_path, "w", encoding="utf-8") as f:
-            print(len(raw_db))
+            # print(len(raw_db))
             f.write(raw_db)
         return db_path
 
@@ -334,14 +334,13 @@ class autorun_task(BaseService):
                     await self.update_notion_select(new_pages[_index]["id"], 1, _uuid_list[0], page_name)
                     await self.update_notion_select(new_pages[_index]["id"], 0, _uuid_list[1], page_name)
                     # 填入自动化记录
-                    await self.update_notion_autolog(new_pages[_index]["id"], _["name"], _["db"][compare_data][1], page_name)
+                    await self.update_notion_autolog(new_pages[_index]["id"], _["name"], "%.2f"%float(_["db"][compare_data][1]), page_name)
                     N_flag = True
                     break
             # 算法5
             if not N_flag:
                 big_log = await self.Algorithm_1_extend_1_run(page_name, new_pages[_index]["id"])
                 small_log = await self.Algorithm_5_extend_1_run(page_name, new_pages[_index]["id"], "small")
-
                 if not big_log:
                     big_uuid, big_log = await self.Algorithm_5_run(page_name, "big")
                     if big_uuid:
@@ -351,7 +350,7 @@ class autorun_task(BaseService):
                     if small_uuid:
                         await self.update_notion_select(new_pages[_index]["id"], 0, small_uuid, page_name)
                 if small_log or big_log:
-                    await self.update_notion_autolog(new_pages[_index]["id"], f"{big_log[0]}+{small_log[0]}", f"{big_log[1]} {small_log[1]}", page_name)
+                    await self.update_notion_autolog(new_pages[_index]["id"], f"{big_log[0]}+{small_log[0]}", f"{big_log[1]}+{small_log[1]}", page_name)
 
     async def Algorithm_1_extend_1_run(self, page_name, page_id):
         """
@@ -367,7 +366,7 @@ class autorun_task(BaseService):
             if page_name_0 in Algorithm_1["db"] and Algorithm_1["db"][page_name_0][1] > Algorithm_1["rate"]:
                 _uuid_0 = Algorithm_1["db"][page_name_0][0].split(" ")[0]
                 await self.update_notion_select(page_id, 1, _uuid_0, page_name)
-                return [f"{Algorithm_1['name']}-扩展1(big)", f"{page_name_0} {Algorithm_1['db'][page_name_0][1]}"]
+                return [f"[1.1](big)", f"{page_name_0} {'%.2f'%Algorithm_1['db'][page_name_0][1]}"]
         return []
 
     async def Algorithm_5_extend_1_run(self, page_name, page_id, _type):
@@ -384,7 +383,7 @@ class autorun_task(BaseService):
             max_uuid, _log = await self.Algorithm_5_run(page_name_1, _type)
             if max_uuid:
                 await self.update_notion_select(page_id, 0, max_uuid, page_name)
-                _log[0] = _log[0] + f"-扩展1({_type})"
+                _log[0] = f"[5.1]({_type})"
                 return _log
         return []
 
