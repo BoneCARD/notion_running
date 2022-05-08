@@ -2,3 +2,4 @@
 conf/local.yml
 test/*
 logs/*
+plugins/notion_autorun/db/*
