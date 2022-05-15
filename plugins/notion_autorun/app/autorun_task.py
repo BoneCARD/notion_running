@@ -25,21 +25,21 @@ class autorun_task(BaseService):
         self.N_Algorithm_info = [
             {
                 "name": "[1]",
-                "db": None,
+                "db": {},
                 "key_generate": lambda _name: _name,
                 # "statistics_value_generate": lambda big_value, small_value: str(big_value)+" "+str(small_value),
                 "rate": 0.15
             },
             {
                 "name": "[2]",
-                "db": None,
+                "db": {},
                 "key_generate": lambda _name: self._sort(self._cut(_name)),
                 # "statistics_value_generate": lambda big_value, small_value: str(big_value) + " " + str(small_value),
                 "rate": 0.3
             },
             {
                 "name": "[3]",
-                "db": None,
+                "db": {},
                 "key_generate": lambda _name: self._sort(jieba.analyse.extract_tags(_name, 20, allowPOS=['ns', 'n', 'vn', 'v', 'nr'], withFlag=False)),
                 # "statistics_value_generate": lambda big_value, small_value: str(big_value) + " " + str(small_value),
                 "rate": 0.3
@@ -48,9 +48,15 @@ class autorun_task(BaseService):
         self.S_Algorithm_info = [
             {
                 "name": "[5]",
-                "db": None,
+                "db": {},
                 "key_generate": lambda _name: self._sort(self._cut(_name), False),
                 "rate": 0.4
+            },
+            {
+                "name": "[1.1]",
+                "db": self.N_Algorithm_info[0]["db"],
+                "key_generate": lambda _name: [_name.split(_)[0] for _ in [":", "："] if _ in _name][0] if len([_name.split(_)[0] for _ in [":", "："] if _ in _name])>0 else "",
+                "rate": 0.15
             },
         ]
 
@@ -262,8 +268,16 @@ class autorun_task(BaseService):
 
     @staticmethod
     def Algorithm_generate_rate_db(_statistics_db):
+        """
+        生成带比率的数据库，数据库结构：最高数量值的uuid， 最高数量值uuid的比率， 最高数量值uuid的的数量值， 所有uuid的数量值总和
+        :param _statistics_db:
+        :return:
+        """
         Algorithm_db = {}
         for _key, _value in _statistics_db.items():
+            # 判断空值或无意义词
+            if _key in ["", [], None, "['']"]:
+                continue
             # 统计该字段所有uuid的数量值
             all_num = 0
             # 记录uuid中最高的数量值
@@ -282,8 +296,13 @@ class autorun_task(BaseService):
         return Algorithm_db
 
     async def Algorithm_db_update(self):
+        # Normal算法更新数据库
         for _ in self.N_Algorithm_info:
             _["db"] = await self.Algorithm_generate_db1(_["key_generate"])
+        # 使用算法1的插件1.1,更新算法1数据库
+        _db = await self.Algorithm_generate_db1(self.S_Algorithm_info[1]["key_generate"])
+        self.N_Algorithm_info[0]["db"].update(_db)
+        # 更新算法5
         self.S_Algorithm_info[0]["db"] = await self.Algorithm_generate_db2(self.S_Algorithm_info[0]["key_generate"])
 
     async def Algorithm_run(self):
@@ -366,7 +385,7 @@ class autorun_task(BaseService):
             if page_name_0 in Algorithm_1["db"] and Algorithm_1["db"][page_name_0][1] > Algorithm_1["rate"]:
                 _uuid_0 = Algorithm_1["db"][page_name_0][0].split(" ")[0]
                 await self.update_notion_select(page_id, 1, _uuid_0, page_name)
-                return [f"[1.1](big)", f"{page_name_0} {'%.2f'%Algorithm_1['db'][page_name_0][1]}"]
+                return [f"[1.1](big)", f"{page_name_0} {'%.2f'%float(Algorithm_1['db'][page_name_0][1])}"]
         return []
 
     async def Algorithm_5_extend_1_run(self, page_name, page_id, _type):
