@@ -49,7 +49,7 @@ class autorun_task(BaseService):
             {
                 "name": "[5]",
                 "db": {},
-                "key_generate": lambda _name: self._sort(self._cut(_name), False),
+                "key_generate": lambda _name: self._sort(self._filter_cut(_name), False),
                 "rate": 0.4
             },
             {
@@ -222,11 +222,13 @@ class autorun_task(BaseService):
         :return:
         """
         big_Algorithm_statistics_db = self.Algorithm_generate_statistics_db(
-            self.local_db_path, _generate,
+            self.local_db_path,
+            _generate,
             lambda big_value, small_value: str(big_value),
         )
         small_Algorithm_statistics_db = self.Algorithm_generate_statistics_db(
-            self.local_db_path, _generate,
+            self.local_db_path,
+            _generate,
             lambda big_value, small_value: str(small_value),
         )
         big_Algorithm_db = self.Algorithm_generate_rate_db(big_Algorithm_statistics_db)
@@ -433,6 +435,14 @@ class autorun_task(BaseService):
             return _list.__str__()
         else:
             return _list
+
+    @staticmethod
+    def _filter_cut(sentence):
+        # 过滤不需要的词性：助词
+        special_word_property = ["u", "ud", "ug", "uj", "ul", "uv", "uz"]
+        _data = []
+        [_data.append(_.word) for _ in p_seg.cut(sentence) if _.word.strip() not in special_word_list and _.flag not in special_word_property]
+        return _data
 
     @staticmethod
     def _cut(sentence, withFlag=False):
