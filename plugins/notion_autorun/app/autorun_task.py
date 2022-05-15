@@ -438,8 +438,10 @@ class autorun_task(BaseService):
 
     @staticmethod
     def _filter_cut(sentence):
-        # 过滤不需要的词性：助词
-        special_word_property = ["u", "ud", "ug", "uj", "ul", "uv", "uz"]
+        # 过滤不需要的词性：
+        # 助词+连词
+        special_word_property = ["u", "ud", "ug", "uj", "ul", "uv", "uz", "c"]
+        #
         _data = []
         [_data.append(_.word) for _ in p_seg.cut(sentence) if _.word.strip() not in special_word_list and _.flag not in special_word_property]
         return _data
