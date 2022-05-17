@@ -88,9 +88,9 @@ class autorun_task(BaseService):
     def time_event_struct(a=None, b=None, c=None, d=None, e=None, f=None):
         return {
             "事件名称": a,
-            "顺便做": b,
+            "🙌顺便做": b,
             "🎰大类-维度": c,
-            "👣小类行为": d,
+            "👣小类-行为": d,
             "创建时间": e,
             "汇总花费时长": f
         }
@@ -126,10 +126,10 @@ class autorun_task(BaseService):
             for page in raw_pages["results"]:
                 raw_event = self.time_event_struct(
                     page["properties"]["事件名称"]["title"][0]["plain_text"],
-                    "" if not page["properties"]["顺便做"]["rich_text"] else page["properties"]["顺便做"]["rich_text"][0][
+                    "" if not page["properties"]["🙌顺便做"]["rich_text"] else page["properties"]["🙌顺便做"]["rich_text"][0][
                         "plain_text"],
                     page["properties"]["🎰大类-维度"]["select"],
-                    page["properties"]["👣小类行为"]["select"],
+                    page["properties"]["👣小类-行为"]["select"],
                     page["properties"]["创建时间"]["formula"]["string"],
                     page["properties"]["汇总花费时长"]["formula"]["number"],
                 )
@@ -178,7 +178,7 @@ class autorun_task(BaseService):
         :return:
         """
         if small_OR_big == 0:
-            small_OR_big = "👣小类行为"
+            small_OR_big = "👣小类-行为"
         elif small_OR_big == 1:
             small_OR_big = "🎰大类-维度"
         else:
@@ -199,8 +199,8 @@ class autorun_task(BaseService):
         :return:
         """
         content = "{}：{}".format(Algorithm_name, rate)
-        self.log.info(f"更新[{page_name}]的[自动化记录]:{content}")
-        properties = self.notionapi.demo_property_text("rich_text", "自动化记录", content)
+        self.log.info(f"更新[{page_name}]的[🤖自动化记录]:{content}")
+        properties = self.notionapi.demo_property_text("rich_text", "🤖自动化记录", content)
         await self.notionapi.database_update_page(page_id, properties)
 
     async def Algorithm_generate_db1(self, _generate):
@@ -244,7 +244,7 @@ class autorun_task(BaseService):
             json_db = json.loads(raw_db)
             for _cell in json_db:
                 # 提取大类小类的uuid与值
-                for _ in ["🎰大类-维度", "👣小类行为"]:
+                for _ in ["🎰大类-维度", "👣小类-行为"]:
                     select_uuid = _cell[_]["id"]
                     select_name = _cell[_]["name"]
                     if select_uuid not in self.select_uuid_db:
@@ -258,7 +258,7 @@ class autorun_task(BaseService):
                 else:
                     raise Exception("[!]Algorithm_generate_statistics_db()方法传入了奇怪的生成器和名字数据，生成的类型："+str(type(key_generate(_cell["事件名称"]))))
                 for range_index in range(len(db_cell_name_list)):
-                    _uuid = value_generate(str(_cell["🎰大类-维度"]["id"]), str(_cell["👣小类行为"]["id"]))
+                    _uuid = value_generate(str(_cell["🎰大类-维度"]["id"]), str(_cell["👣小类-行为"]["id"]))
                     if db_cell_name_list[range_index] in _db:
                         if _uuid in _db[db_cell_name_list[range_index]]:
                             _db[db_cell_name_list[range_index]][_uuid] += 1
@@ -325,7 +325,7 @@ class autorun_task(BaseService):
                             }
                         },
                         {
-                            "property": "👣小类行为",
+                            "property": "👣小类-行为",
                             "select": {
                                 "is_empty": True
                             }
@@ -333,7 +333,7 @@ class autorun_task(BaseService):
                     ],
                 },
                 {
-                    "property": "自动化记录",
+                    "property": "🤖自动化记录",
                     "rich_text": {
                         "is_empty": True
                     }
