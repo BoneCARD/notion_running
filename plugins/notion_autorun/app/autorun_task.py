@@ -78,7 +78,7 @@ class autorun_task(BaseService):
                 # 填入花费时长
                 properties = self.notionapi.demo_property_normal("计算花费时长(auto)", cost_min_time, "number")
                 await self.notionapi.database_update_page(new_pages[_index]["id"], properties)
-                self.log.info(f'计算用时 {new_pages[_index]["properties"]["事件名称"]["title"][0]["plain_text"] + ":" + cost_min_time.__str__()}')
+                self.log.info(f'计算用时 {new_pages[_index]["properties"]["事件名称"]["title"][0]["plain_text"] if new_pages[_index]["properties"]["事件名称"]["title"] else "" + ":" + cost_min_time.__str__()}')
 
     @staticmethod
     def convert_ISO_8601(raw):
@@ -349,6 +349,8 @@ class autorun_task(BaseService):
         new_pages = await self.notionapi.database_query_page(self.time_database_id, _filter=_filter, page_size=page_size)
         # 查看前10项是否有未填花费的时间的事件，计算并填入花费的时间
         for _index in range(len(new_pages)):
+            if not new_pages[_index]["properties"]["事件名称"]["title"]:
+                continue
             page_name = new_pages[_index]["properties"]["事件名称"]["title"][0]["plain_text"]
             N_flag = False
             for _ in self.N_Algorithm_info:
@@ -469,7 +471,7 @@ class autorun_task(BaseService):
         await self.calculate_cost_time()
         scheduler.add_job(self.calculate_cost_time, 'interval', seconds=600)
         scheduler.add_job(self.Algorithm_run, 'interval', seconds=600)
-        scheduler.add_job(self.generate_db_path, 'cron', day_of_week='mon,tue,thu,sat', hours=11)
+        scheduler.add_job(self.generate_db_path, 'cron', day_of_week='mon,tue,thu,sat', hour=11)
 
 
 if __name__ == '__main__':
