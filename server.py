@@ -46,7 +46,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('Welcome to the system')
     parser.add_argument('-E', '--environment', required=False, default='local', help='Select an env. file to use')
     parser.add_argument("-l", "--log", dest="logLevel", choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-                        help="Set the logging level", default='DEBUG')
+                        help="Set the logging level", default='INFO')
     args = parser.parse_args()
 
     setup_logger(getattr(logging, args.logLevel))
