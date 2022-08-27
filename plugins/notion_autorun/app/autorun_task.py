@@ -124,10 +124,11 @@ class autorun_task(BaseService):
             raw_pages = await self.notionapi.database_query_page(self.time_database_id, start_cursor=start_cursor, complete_resp=True)
             # 提取事件名称、大类、小类、创建时间、花费时长
             for page in raw_pages["results"]:
+                if not page["properties"]["事件名称"]["title"]:
+                    continue
                 raw_event = self.time_event_struct(
                     page["properties"]["事件名称"]["title"][0]["plain_text"],
-                    "" if not page["properties"]["🙌顺便做"]["rich_text"] else page["properties"]["🙌顺便做"]["rich_text"][0][
-                        "plain_text"],
+                    "" if not page["properties"]["🙌顺便做"]["rich_text"] else page["properties"]["🙌顺便做"]["rich_text"][0]["plain_text"],
                     page["properties"]["🎰大类-维度"]["select"],
                     page["properties"]["👣小类-行为"]["select"],
                     page["properties"]["创建时间"]["formula"]["string"],
@@ -463,7 +464,7 @@ class autorun_task(BaseService):
         await self.calculate_cost_time()
         scheduler.add_job(self.calculate_cost_time, 'interval', seconds=600)
         scheduler.add_job(self.Algorithm_run, 'interval', seconds=600)
-        scheduler.add_job(self.generate_db_path, 'cron', day_of_week=1, hour=11)
+        scheduler.add_job(self.generate_db_path, 'interval', days=2)
 
 
 if __name__ == '__main__':
