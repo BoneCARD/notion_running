@@ -66,7 +66,7 @@ class autorun_task(BaseService):
         :return:
         """
         # 获取柳比歇夫时间统计法的事件列表
-        page_size = 10
+        page_size = 20
         new_pages = await self.notionapi.database_query_page(self.time_database_id, page_size=page_size + 1)
         # 查看前10项是否有未填花费的时间的事件，计算并填入花费的时间
         for _index in range(page_size):
@@ -105,9 +105,11 @@ class autorun_task(BaseService):
         if len(_judge_list) == 0:
             # 新周更新
             self.local_db_path = await self.transfo_training_set()
+            self.log.info(f"[+]新周更新数据库完成[{self.local_db_path}]")
             # await self.Algorithm_1_generate_db()
         if len(_judge_list) == 1:
             self.local_db_path = [_ for _ in BaseWorld.getfile(self.db_dir) if self.local_week().split("(")[0] in _][0]
+            self.log.info(f"[~]刷新本周数据库[{self.local_db_path}]")
         if len(_judge_list) > 1:
             raise Exception("[!]异常 有多个在同周生成的数据库数据，请检查数据库数据")
         await self.Algorithm_db_update()
@@ -125,20 +127,18 @@ class autorun_task(BaseService):
             # 提取事件名称、大类、小类、创建时间、花费时长
             for page in raw_pages["results"]:
                 try:
-                    # if page["properties"]["事件名称"]["type"] != "title":
-                    #     print(page["properties"]["事件名称"])
-                        # continue
-                    x = page["properties"]["事件名称"]["title"][0]["plain_text"]
+                    raw_event = self.time_event_struct(
+                        page["properties"]["事件名称"]["title"][0]["plain_text"],
+                        "" if not page["properties"]["🙌顺便做"]["rich_text"] else
+                        page["properties"]["🙌顺便做"]["rich_text"][0]["plain_text"],
+                        page["properties"]["🎰大类-维度"]["select"],
+                        page["properties"]["👣小类-行为"]["select"],
+                        page["properties"]["创建时间"]["formula"]["string"],
+                        page["properties"]["汇总花费时长"]["formula"]["number"],
+                    )
                 except Exception as E:
-                    print(page)
-                raw_event = self.time_event_struct(
-                    page["properties"]["事件名称"]["title"][0]["plain_text"],
-                    "" if not page["properties"]["🙌顺便做"]["rich_text"] else page["properties"]["🙌顺便做"]["rich_text"][0]["plain_text"],
-                    page["properties"]["🎰大类-维度"]["select"],
-                    page["properties"]["👣小类-行为"]["select"],
-                    page["properties"]["创建时间"]["formula"]["string"],
-                    page["properties"]["汇总花费时长"]["formula"]["number"],
-                )
+                    # print(page)
+                    continue
                 # 去除不完整的事件
                 if len([_ for _ in raw_event.values() if _ is None]) > 0:
                     # print(raw_event.values())
@@ -154,7 +154,9 @@ class autorun_task(BaseService):
         db_path = os.path.join(self.db_dir, "{}_{}.json".format(self.local_week(), uuid.uuid4().__str__()))
         with open(db_path, "w", encoding="utf-8") as f:
             # print(len(raw_db))
+            self.log.info(f"[+]数据库采集完成，写入中：{self.local_db_path}")
             f.write(raw_db)
+            self.log.info(f"[+]数据库写入完成：{self.local_db_path}")
         return db_path
 
     @staticmethod
@@ -205,6 +207,9 @@ class autorun_task(BaseService):
         :return:
         """
         content = "{}：{}".format(Algorithm_name, rate)
+        if content == "+：+":
+            # self.log.info(f"查不到[{page_name}]")
+            return
         self.log.info(f"更新[{page_name}]的[🤖自动化记录]:{content}")
         properties = self.notionapi.demo_property_text("rich_text", "🤖自动化记录", content)
         await self.notionapi.database_update_page(page_id, properties)
@@ -396,7 +401,7 @@ class autorun_task(BaseService):
                 _uuid_0 = Algorithm_1["db"][page_name_0][0].split(" ")[0]
                 await self.update_notion_select(page_id, 1, _uuid_0, page_name)
                 return [f"[1.1](big)", f"{page_name_0} {'%.2f'%float(Algorithm_1['db'][page_name_0][1])}"]
-        return []
+        return ["", ""]
 
     async def Algorithm_5_extend_1_run(self, page_name, page_id, _type):
         """
@@ -414,7 +419,7 @@ class autorun_task(BaseService):
                 await self.update_notion_select(page_id, 0, max_uuid, page_name)
                 _log[0] = f"[5.1]({_type})"
                 return _log
-        return []
+        return ["", ""]
 
     async def Algorithm_5_run(self, page_name, _type):
         # 分词
@@ -434,7 +439,7 @@ class autorun_task(BaseService):
                 max_key = _[-1]
         if max_uuid:
             return max_uuid, [f"{Algorithm_5['name']}({_type})", f"{max_key} {str(max_num)}"]
-        return "", []
+        return "", ["", ""]
 
     @staticmethod
     def _sort(_list, _str=True):
@@ -471,7 +476,8 @@ class autorun_task(BaseService):
         await self.calculate_cost_time()
         scheduler.add_job(self.calculate_cost_time, 'interval', seconds=600)
         scheduler.add_job(self.Algorithm_run, 'interval', seconds=600)
-        scheduler.add_job(self.generate_db_path, 'cron', day_of_week='mon,tue,thu,sat', hour=11)
+        scheduler.add_job(self.generate_db_path, 'interval', seconds=60*24)
+        # scheduler.add_job(self.generate_db_path, 'cron', day_of_week='mon,tue,thu,sat', hour=4)
 
 
 if __name__ == '__main__':
