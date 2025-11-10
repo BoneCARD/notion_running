@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  notion_running:
+    build: .
+    container_name: notion_running
+    command: ["-E", "${ENV_FILE:-local}"]
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./logs:/app/logs
+      - ./plugins/notion_autorun/db:/app/plugins/notion_autorun/db
+      - ./conf:/app/conf
+    restart: unless-stopped
+
