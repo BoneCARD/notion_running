@@ -3,3 +3,6 @@ conf/local.yml
 test/*
 logs/*
 plugins/notion_autorun/db/*
+*/__pycache__/*
+*.pyc
+*.DS_Store

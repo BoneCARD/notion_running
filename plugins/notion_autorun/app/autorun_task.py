@@ -67,18 +67,56 @@ class autorun_task(BaseService):
         """
         # 获取柳比歇夫时间统计法的事件列表
         page_size = 20
-        new_pages = await self.notionapi.database_query_page(self.time_database_id, page_size=page_size + 1)
-        # 查看前10项是否有未填花费的时间的事件，计算并填入花费的时间
-        for _index in range(page_size):
-            if not new_pages[_index]["properties"]["汇总花费时长"]["formula"]["number"]:
-                # 计算花费时长
-                cost_min_time = (self.convert_ISO_8601(
-                    new_pages[_index]["properties"]["自动创建日期"]["created_time"]) - self.convert_ISO_8601(
-                    new_pages[_index + 1]["properties"]["自动创建日期"]["created_time"])).seconds / 60
-                # 填入花费时长
-                properties = self.notionapi.demo_property_normal("计算花费时长(auto)", cost_min_time, "number")
-                await self.notionapi.database_update_page(new_pages[_index]["id"], properties)
-                self.log.info(f'计算用时 {new_pages[_index]["properties"]["事件名称"]["title"][0]["plain_text"] if new_pages[_index]["properties"]["事件名称"]["title"] else "" + ":" + cost_min_time.__str__()}')
+        sorts = [
+            {
+                "property": "自动创建日期",
+                "direction": "descending"
+            }
+        ]
+        new_pages = await self.notionapi.database_query_page(
+            self.time_database_id,
+            page_size=page_size + 1,
+            sorts=sorts,
+            complete_resp=False
+        )
+        if len(new_pages) <= 1:
+            self.log.info("[calculate_cost_time] 数据量不足，跳过自动补全耗时")
+            return
+
+        updated = 0
+        # 查看前page_size项是否有未填花费的时间的事件，计算并填入花费的时间
+        for _index in range(min(page_size, len(new_pages))):
+            page = new_pages[_index]
+            auto_value = page["properties"]["计算花费时长(auto)"]["number"]
+            if auto_value is not None:
+                continue
+            # 需要至少下一条记录作为参考
+            if _index + 1 >= len(new_pages):
+                continue
+            if not page["properties"]["事件名称"]["title"]:
+                continue
+            next_page = new_pages[_index + 1]
+            current_time = self.convert_ISO_8601(page["properties"]["自动创建日期"]["created_time"])
+            previous_time = self.convert_ISO_8601(next_page["properties"]["自动创建日期"]["created_time"])
+            delta_minutes = (current_time - previous_time).total_seconds() / 60
+            if delta_minutes <= 0:
+                self.log.warning(f"[calculate_cost_time] {page['id']} 耗时计算得到非正值 {delta_minutes}，已跳过")
+                continue
+            cost_min_time = round(delta_minutes, 2)
+            if cost_min_time > 7 * 24 * 60:
+                self.log.warning(f"[calculate_cost_time] {page['id']} 耗时结果 {cost_min_time} 分钟过大，已跳过")
+                continue
+            properties = self.notionapi.demo_property_normal("计算花费时长(auto)", cost_min_time, "number")
+            await self.notionapi.database_update_page(page["id"], properties)
+            name = page["properties"]["事件名称"]["title"]
+            page_name = name[0]["plain_text"] if name else ""
+            self.log.info(f'计算用时 {page_name}: {cost_min_time}')
+            updated += 1
+
+        if updated == 0:
+            self.log.info("[calculate_cost_time] 本次未发现需要补全的事件")
+        else:
+            self.log.info(f"[calculate_cost_time] 已补全 {updated} 条事件的耗时信息")
 
     @staticmethod
     def convert_ISO_8601(raw):
@@ -100,30 +138,46 @@ class autorun_task(BaseService):
         生成本周采集数据的数据库文件路径
         :return:
         """
+        self.log.info("[generate_db_path] 开始生成本周数据库文件 ...")
+        print("[generate_db_path] 开始生成本周数据库文件 ...", flush=True)
         # 判断本周数据是否在数据库中
         _judge_list = [_ for _ in BaseWorld.getfile(self.db_dir) if self.local_week().split("(")[0] in _]
         if len(_judge_list) == 0:
             # 新周更新
+            self.log.info("[generate_db_path] 未发现本周数据，准备全量同步")
+            print("[generate_db_path] 未发现本周数据，准备全量同步", flush=True)
             self.local_db_path = await self.transfo_training_set()
             self.log.info(f"[+]新周更新数据库完成[{self.local_db_path}]")
+            print(f"[generate_db_path] 新周更新数据库完成 -> {self.local_db_path}", flush=True)
             # await self.Algorithm_1_generate_db()
         if len(_judge_list) == 1:
             self.local_db_path = [_ for _ in BaseWorld.getfile(self.db_dir) if self.local_week().split("(")[0] in _][0]
             self.log.info(f"[~]刷新本周数据库[{self.local_db_path}]")
+            print(f"[generate_db_path] 刷新本周数据库 -> {self.local_db_path}", flush=True)
         if len(_judge_list) > 1:
             raise Exception("[!]异常 有多个在同周生成的数据库数据，请检查数据库数据")
         await self.Algorithm_db_update()
+        print("[generate_db_path] Algorithm_db_update 完成", flush=True)
 
     async def transfo_training_set(self):
         """
         转化训练集
         :return:
         """
+        self.log.info("[transfo_training_set] 开始从 Notion 拉取原始事件数据")
+        print("[transfo_training_set] 开始从 Notion 拉取原始事件数据", flush=True)
         # 获取柳比歇夫时间统计法数据库中的所有事件
         time_event_db = []
         start_cursor = None
+        page_index = 1
+        total_count = 0
         while True:
+            self.log.info(f"[transfo_training_set] 请求第 {page_index} 页，start_cursor={start_cursor}")
+            print(f"[transfo_training_set] 请求第 {page_index} 页，start_cursor={start_cursor}", flush=True)
             raw_pages = await self.notionapi.database_query_page(self.time_database_id, start_cursor=start_cursor, complete_resp=True)
+            page_results = raw_pages.get("results", [])
+            self.log.info(f"[transfo_training_set] 第 {page_index} 页返回 {len(page_results)} 条记录")
+            print(f"[transfo_training_set] 第 {page_index} 页返回 {len(page_results)} 条记录", flush=True)
             # 提取事件名称、大类、小类、创建时间、花费时长
             for page in raw_pages["results"]:
                 try:
@@ -144,12 +198,18 @@ class autorun_task(BaseService):
                     # print(raw_event.values())
                     continue
                 time_event_db.append(raw_event)
+                total_count += 1
+                self.log.info(f"[transfo_training_set] 已累计 {total_count} 条，当前事件：{raw_event}")
+                print(f"[transfo_training_set] 已累计 {total_count} 条，当前事件：{raw_event}", flush=True)
             if "has_more" not in raw_pages:
                 raise Exception("[!]miss has_more")
             if not raw_pages["has_more"]:
+                self.log.info("[transfo_training_set] has_more=False，数据抓取结束")
+                print("[transfo_training_set] has_more=False，数据抓取结束", flush=True)
                 break
             else:
                 start_cursor = raw_pages["next_cursor"]
+                page_index += 1
         raw_db = json.dumps(time_event_db, indent=4, ensure_ascii=False)
         db_path = os.path.join(self.db_dir, "{}_{}.json".format(self.local_week(), uuid.uuid4().__str__()))
         with open(db_path, "w", encoding="utf-8") as f:
@@ -157,6 +217,8 @@ class autorun_task(BaseService):
             self.log.info(f"[+]数据库采集完成，写入中：{self.local_db_path}")
             f.write(raw_db)
             self.log.info(f"[+]数据库写入完成：{self.local_db_path}")
+        self.log.info(f"[transfo_training_set] 共写入 {total_count} 条记录到 {db_path}")
+        print(f"[transfo_training_set] 共写入 {total_count} 条记录到 {db_path}", flush=True)
         return db_path
 
     @staticmethod

@@ -15,6 +15,17 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
         self.root_block_id = BaseWorld.get_config("NOTION_ROOT_ID")
         # self.notion = Client(auth=BaseWorld.get_config("NOTION_TOKEN"))
         self.log = self.add_service('notionapi_svc', self)
+        self._datasource_cache = {}
+
+    @staticmethod
+    def _normalize_id(identifier: str):
+        """
+        Notion's API accepts IDs with hyphens. Some configurations store the condensed 32
+        character variant. Convert to the canonical hyphenated form when needed.
+        """
+        if isinstance(identifier, str) and len(identifier) == 32 and '-' not in identifier:
+            return f"{identifier[0:8]}-{identifier[8:12]}-{identifier[12:16]}-{identifier[16:20]}-{identifier[20:]}"
+        return identifier
 
     async def list_api_users(self):
         return await self.notion.users.list()
@@ -23,6 +34,7 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
         return await self.notion.databases.list()
 
     async def add_blocks(self, page_id, children: list = []):
+        page_id = self._normalize_id(page_id)
         await self.notion.blocks.children.append(page_id, children=children)
 
     async def database_add_page(self, database_id, properties: dict, children: list = []):
@@ -38,6 +50,7 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
                 demo = [notionapi_svc.demo_block_Code("ip a", "bash")]
                 demo.append(notionapi_svc.demo_block_Code("ip a", "bash"))
         """
+        database_id = self._normalize_id(database_id)
         await self.notion.pages.create(parent={"database_id": database_id}, properties=properties, children=children)
 
     async def database_update_page(self, page_id, properties: dict):
@@ -49,6 +62,7 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
                 demo = notionapi_svc.demo_property_Title("Name", "Yes")
                 demo.update(notionapi_svc.demo_property_Checkbox("Check", True))
         """
+        page_id = self._normalize_id(page_id)
         await self.notion.pages.update(page_id=page_id, properties=properties)
 
     async def database_query_page(self, database_id, _filter=None, page_size=None, start_cursor=None, sorts=None, complete_resp=False):
@@ -110,12 +124,25 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
             kwargs.update(dict(start_cursor=start_cursor))
         if sorts:
             kwargs.update(dict(sorts=sorts))
-        _ = await self.notion.databases.query(database_id, **kwargs)
+        database_id = self._normalize_id(database_id)
+
+        datasource_id = await self._get_datasource_id(database_id)
+        if datasource_id:
+            path = f"data_sources/{datasource_id}/query"
+        else:
+            path = f"databases/{database_id}/query"
+
+        _ = await self.notion.request(
+            path=path,
+            method="POST",
+            body=kwargs,
+        )
         if complete_resp:
             return _
         return _["results"]
 
     async def delete_page(self, page_id):
+        page_id = self._normalize_id(page_id)
         await self.notion.blocks.delete(page_id)
 
     async def query_page(self, page_id):
@@ -124,7 +151,26 @@ class NotionAPIService(NotionAPIServiceInterface, BaseService, ABC):
         :param page_id:
         :return : list
         """
+        page_id = self._normalize_id(page_id)
         return await self.notion.blocks.children.list(page_id)
+
+    async def _get_datasource_id(self, database_id):
+        if database_id in self._datasource_cache:
+            return self._datasource_cache[database_id]
+        try:
+            database = await self.notion.databases.retrieve(database_id=database_id)
+        except Exception as e:
+            self.log.error(f"Failed to retrieve database {database_id}: {e}")
+            return None
+
+        data_sources = database.get("data_sources") or []
+        if data_sources:
+            datasource_id = data_sources[0].get("id")
+            if datasource_id:
+                datasource_id = self._normalize_id(datasource_id.replace('-', ''))
+                self._datasource_cache[database_id] = datasource_id
+                return datasource_id
+        return None
 
 
 if __name__ == '__main__':

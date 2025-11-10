@@ -17,7 +17,7 @@ class ApplicationService(ApplicationServiceInterface, BaseService, ABC):
         self.application = application
         self.log = self.add_service('app_svc', self)
         self.loop = asyncio.get_event_loop()
-        self.scheduler = AsyncIOScheduler(timezone='Asia/Shanghai')
+        self.scheduler = AsyncIOScheduler(event_loop=self.loop, timezone='Asia/Shanghai')
         self.scheduler.start()
         self._loaded_plugins = []
 
