@@ -5,7 +5,6 @@ import os
 import yaml
 import logging
 import subprocess
-import distutils.version
 from base64 import b64encode, b64decode
 from datetime import datetime
 from importlib import import_module
